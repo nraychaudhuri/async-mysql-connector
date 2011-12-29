@@ -22,7 +22,7 @@ public class Test {
 
 			@Override
 			public void onSuccess(OK ok) {
-				System.out.println("OK");
+				System.out.println(ok.getMessage());
 			}
 
 			@Override
