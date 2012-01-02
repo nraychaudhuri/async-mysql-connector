@@ -48,6 +48,7 @@ abstract class Database(host: String, port: Int, user: String, password: String,
     system.shutdown()
     eventLoopService.shutdown()
     multiplexer.close()
+    true
   }
 
   private def createNewConnection(channel: SocketChannel, key: SelectionKey) = {

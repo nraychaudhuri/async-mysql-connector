@@ -41,14 +41,12 @@ object MysqlConnectionSpec extends Specification {
         r
       }
       val rs = Await.result(future, timeout.duration).asInstanceOf[ResultSet]
-      while (rs.hasNext()) {
-        rs.next()
-        System.out.println(rs.getLong(1) + " " + rs.getString(2)
-          + " " + rs.getString(3) + " " + rs.getTimestamp(4));
-        1 must beEqualTo(1)
-        "text text text" must beEqualTo(rs.getString(3))
-      }
-      db.close()
+      rs.next()
+      System.out.println(rs.getLong(1) + " " + rs.getString(2)
+        + " " + rs.getString(3) + " " + rs.getTimestamp(4));
+      1 must beEqualTo(1)
+      "text text text" must beEqualTo(rs.getString(3))
+      db.close() must equalTo(true)
     }
 
     "allow to execute select query" in {
@@ -60,15 +58,13 @@ object MysqlConnectionSpec extends Specification {
 
       futures.foreach { f =>
         val rs = Await.result(f, timeout.duration).asInstanceOf[ResultSet]
-        while (rs.hasNext()) {
-          rs.next()
-          System.out.println(rs.getLong(1) + " " + rs.getString(2)
-            + " " + rs.getString(3) + " " + rs.getTimestamp(4));
-          1 must beEqualTo(1)
-          "text text text" must beEqualTo(rs.getString(3))
-        }
+        rs.next()
+        System.out.println(rs.getLong(1) + " " + rs.getString(2)
+          + " " + rs.getString(3) + " " + rs.getTimestamp(4));
+        1 must beEqualTo(1)
+        "text text text" must beEqualTo(rs.getString(3))
       }
-      db.close()
+      db.close() must equalTo(true)
     }
   }
 }
