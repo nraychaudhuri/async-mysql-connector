@@ -13,6 +13,7 @@ import java.nio.channels.Selector
 import java.nio.channels.SelectionKey
 import org.async.jdbc.AsyncConnection
 import java.util.concurrent.ExecutorService
+import akka.dispatch.Future
 
 abstract class Database(host: String, port: Int, user: String, password: String, database: String) {
   val multiplexer: Multiplexer
@@ -32,7 +33,16 @@ abstract class Database(host: String, port: Int, user: String, password: String,
     }
   }
 
-  def connection = {
+  def withConnection[A](handler: DBConnection => Future[A]) = {
+    val (key, con) = connectionAndKey
+    val result = handler(con)
+    result.onComplete { e =>
+      con.close()
+      multiplexer.unregisterProcessor(key)
+    }
+  }
+
+  private def connectionAndKey = {
     val channel = openChannel()
     val key = channel.register(multiplexer.getSelector, SelectionKey.OP_CONNECT);
     val connection = createNewConnection(channel, key)
@@ -41,10 +51,10 @@ abstract class Database(host: String, port: Int, user: String, password: String,
     channel.connect(new InetSocketAddress(host, port))
 
     val myActor = system.actorOf(Props(new LocalMysqlConnectionActor(connection)))
-    new DBConnection(myActor)
+    (key, new DBConnection(myActor))
   }
-  
-  def close() =  {    
+
+  def close() = {
     system.shutdown()
     eventLoopService.shutdown()
     multiplexer.close()

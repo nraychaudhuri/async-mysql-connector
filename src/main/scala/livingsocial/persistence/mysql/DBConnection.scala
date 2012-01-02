@@ -18,6 +18,7 @@ import org.async.jdbc.AsyncConnection
 import akka.actor.Kill
 import org.async.jdbc.PreparedStatement
 import org.async.jdbc.PreparedQuery
+import akka.actor.PoisonPill
 
 case class Query(q: String)
 case class Query2(q: String, f: PreparedStatement => Unit)
@@ -48,7 +49,7 @@ class DBConnection(underlyingConnection: ActorRef) {
   }
 
   def close() {
-    underlyingConnection ! Kill
+    underlyingConnection ! PoisonPill
   }
 }
 

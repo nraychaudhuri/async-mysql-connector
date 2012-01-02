@@ -40,6 +40,10 @@ public class Multiplexer {
         processors.put(key, processor);
     }
 
+    public void unregisterProcessor(SelectionKey key) {
+        processors.remove(key);
+    }
+
     public void close() throws SQLException {
        for (MysqlConnection value : processors.values()) {
           value.close();
